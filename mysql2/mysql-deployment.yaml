@@ -1,0 +1,104 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql
+  labels:
+    app: mysql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      initContainers:
+      - image: nfs.k8s:8080/k8s/busybox:1.28
+        name: mysql-init
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: MYSQL_TEST_USER_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-user-pwd
+              key: mysql-test-user-pwd
+        command:
+          - sh
+          - "-c"
+          - |
+            set -ex
+            #rm -fr /var/lib/mysql/lost+found
+            cat > /docker-entrypoint-initdb.d/mysql-appdata-init.sql <<EOF
+            create database if not exists appdata;
+            grant all on appdata.* to 'test'@'%' identified by '$MYSQL_TEST_USER_PASSWORD';
+            flush privileges;
+            create table appdata.app(id int);
+            insert into appdata.app values(1);
+            commit;
+            EOF
+        volumeMounts:
+        - name: mysql-initdb
+          mountPath: /docker-entrypoint-initdb.d
+      volumes:
+      - name: mysql-initdb
+        emptyDir: {}
+
+      containers:
+      - image: nfs.k8s:8080/k8s/mysql:5.7
+        name: mysql
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - "-c"
+            - MYSQL_PWD="${MYSQL_ROOT_PASSWORD}"
+            - mysql -h 127.0.0.1 -u root -e "SELECT 1"
+          initialDelaySeconds: 30
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 3
+        readinessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - "-c"
+            - MYSQL_PWD="${MYSQL_ROOT_PASSWORD}"
+            - mysql -h 127.0.0.1 -u root -e "SELECT 1"
+          initialDelaySeconds: 10
+          timeoutSeconds: 1
+          successThreshold: 1
+          failureThreshold: 3
+        volumeMounts:        
+        - name: mysql-data
+          mountPath: /var/lib/mysql
+        - name: mysql-config
+          mountPath: /etc/mysql/conf.d/
+        - name: mysql-initdb
+          mountPath: /docker-entrypoint-initdb.d
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-user-pwd
+              key: mysql-root-pwd
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-user-pwd
+              key: mysql-app-user-pwd
+        - name: MYSQL_USER
+          value: app
+        - name: MYSQL_DATABASE
+          value: appdata
+      volumes:
+      - name: mysql-data
+        persistentVolumeClaim:
+          claimName: mysql
+      - name: mysql-config
+        configMap:
+          name: mysql-config
+      - name: mysql-initdb
+        emptyDir: {}

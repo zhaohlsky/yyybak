@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: nginx
+    version: alpine
+  name: nginx-app
+  namespace: default
+spec: 
+  replicas: 1
+  selector: 
+    matchLabels: 
+      app: nginx
+      version: alpine
+  strategy: 
+    rollingUpdate: 
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template: 
+    metadata: 
+      labels: 
+        app: nginx
+        version: alpine         
+    spec: 
+      initContainers:
+      - name: busybox
+        image: busybox:1.28
+        volumeMounts:
+        - name: init-share-html
+          mountPath: "/share/html"
+        - name: init-share-conf
+          mountPath: "/share/conf"
+        - name: indexhtml
+          mountPath: "/data/html"
+        - name: defaultconf
+          mountPath: "/data/conf"
+        command: ["/bin/sh","-c","cp /data/html/* /share/html;cp /data/conf/* /share/conf"]
+      containers:
+      - name: nginx-app
+        image: nfs.k8s:8080/k8s/nginx:alpine
+        imagePullPolicy: Always #IfNotPresent
+        ports: 
+        - containerPort: 80 
+          protocol: TCP
+        volumeMounts:
+        - name: init-share-conf
+          mountPath: "/etc/nginx/conf.d"
+        - name: init-share-html
+          mountPath: "/usr/share/nginx/html"
+        #command: ["nginx","-c","/usr/share/nginx/html/nginx.conf"]
+        #command: ["nginx -s reload -c /usr/share/nginx/html/nginx.conf"]
+      restartPolicy: Always
+      volumes:
+      - name: indexhtml
+        nfs:
+          server: nfs.k8s
+          path: "/data/k8s/nginx/html"
+      - name: defaultconf
+        nfs:
+          server: nfs.k8s
+          path: "/data/k8s/nginx/conf"
+      - name: init-share-conf
+        emptyDir: {}
+      - name: init-share-html
+        emptyDir: {}

@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: portainer-agent
+  namespace: default
+  labels:
+    app: portainer-agent
+spec:
+  selector:
+    matchLabels:
+      app: portainer-agent
+  template:
+    metadata:
+      labels:
+        app: portainer-agent
+    spec:
+      containers:
+      - name: portainer-agent
+        image: portainer/agent
+        resources:
+          limits:
+            memory: 200Mi
+          requests:
+            cpu: 100m
+            memory: 200Mi
+        volumeMounts:
+        - name: sock
+          mountPath: /var/run/docker.sock
+        - name: volumes
+          mountPath: /var/lib/docker/volumes
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: docker-sock
+        hostPath:
+          path: /var/run/docker.sock
+      - name: docker-volumes
+        hostPath:
+          path: /var/lib/docker/volumes
+

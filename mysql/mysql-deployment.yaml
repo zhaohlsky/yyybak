@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: mysql
+    version: "5.7"
+  name: mysql-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+      version: "5.7"
+  template:
+    metadata:
+      labels:
+        app: mysql
+        version: "5.7"
+    spec:
+      containers:
+      - env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              name: mysql-cm
+              key: MYSQL_ROOT_PASSWORD
+        - name: MYSQL_USER
+          value: "admin"
+        - name: MYSQL_PASSWORD
+          value: "8888dhcc"
+        image: "nfs.k8s:8080/k8s/mysql:5.7"
+        imagePullPolicy: Always #IfNotPresent
+        name: mysql
+        ports:
+        - containerPort: 3306
+          protocol: TCP
+          name: http
+        volumeMounts:
+        - name: mysqldb
+          mountPath: "/var/lib/mysql"
+          readOnly: false
+      volumes:
+      - name: mysqldata
+        nfs:
+          server: nfs.k8s
+          path: "/data/k8s/mysql"
+      - name: mysqldb
+        persistentVolumeClaim:
+          claimName: mysql-pvc

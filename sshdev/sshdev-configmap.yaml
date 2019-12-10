@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sshdev-cm
+  namespace: default
+data:
+  MYSQL_ADDR: "172.17.250.251"
+  MYSQL_ROOT_PASSWORD: "8888dhcc"
+  MYSQL_DB: "dev"
+  MYSQL_PORT: "30306"

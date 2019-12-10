@@ -1,0 +1,14 @@
+# kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep kuboard-user | awk '{print $1}')
+Name:         kuboard-user-token-jwx9s
+Namespace:    kube-system
+Labels:       <none>
+Annotations:  kubernetes.io/service-account.name: kuboard-user
+              kubernetes.io/service-account.uid: f86f9f51-429c-46ad-8922-ef4ee2d5f18d
+
+Type:  kubernetes.io/service-account-token
+
+Data
+====
+ca.crt:     1025 bytes
+namespace:  11 bytes
+token:      eyJhbGciOiJSUzI1NiIsImtpZCI6IjBJRFZ3bEtKRzV2c1J0RnZieTJUWU5IaFA1enNYMkNYZE5kUjV2Q0UzZXcifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJrdWJlLXN5c3RlbSIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJrdWJvYXJkLXVzZXItdG9rZW4tand4OXMiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC5uYW1lIjoia3Vib2FyZC11c2VyIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQudWlkIjoiZjg2ZjlmNTEtNDI5Yy00NmFkLTg5MjItZWY0ZWUyZDVmMThkIiwic3ViIjoic3lzdGVtOnNlcnZpY2VhY2NvdW50Omt1YmUtc3lzdGVtOmt1Ym9hcmQtdXNlciJ9.IZzFua_ZTvgKgMEvRX1Mt9w5zkG3p7ysWAezUkikxEUc_hwGo9a73n65us950JosqW6wTvZWbr-sXSJttk8pwNQzyDQ6S5sNEzbEI1KZuDwF26xByE3-ojc9cazx9MYejoS-LwmIfrWxKiVKt_KTCKi0zZIPHaQbNqdDjzMYtBWFLXGwT46QRu-oplkipnMcHM_KekPzBzQUhaoDK0xfh9TRt_zfY2tf3WcA_fkMCOS1Hq1K6zZh2VQlbA4jXZNjjegpp7j8kWh_3DrCqDeMLFZhv9EmtSOFn3pyefuoJWERjpYduJ3KPvViX3leCcvExhRgdR5ftWLv3C4-H5ClVA

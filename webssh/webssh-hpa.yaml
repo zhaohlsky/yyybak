@@ -1,0 +1,14 @@
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: webssh-hpa
+  namespace: default
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: webssh-deployment
+  minReplicas: 1
+  maxReplicas: 6
+  metrics:
+  targetCPUUtilizationPercentage: 10

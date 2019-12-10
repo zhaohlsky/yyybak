@@ -1,0 +1,43 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: batch-job-every-5-minutes
+spec:
+  schedule: "0,20,40 * * * *"
+  startingDeadlineSeconds: 15
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: sshdev
+        spec:
+          restartPolicy: OnFailure
+          containers:
+          - env:
+            - name: MYSQL_ADDR
+              valueFrom:
+                configMapKeyRef:
+                  name: sshdev-cm
+                  key: MYSQL_ADDR
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  name: sshdev-cm
+                  key: MYSQL_ROOT_PASSWORD
+            - name: MYSQL_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: sshdev-cm
+                  key: MYSQL_DB
+            - name: MYSQL_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: sshdev-cm
+                  key: MYSQL_PORT
+            image: "nfs.k8s:8080/k8s/sshdev:v1"
+            imagePullPolicy: Always #IfNotPresent
+            name: sshdev
+
+
+
