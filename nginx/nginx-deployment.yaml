@@ -25,7 +25,7 @@ spec:
     spec: 
       initContainers:
       - name: busybox
-        image: busybox:1.28
+        image: nfs.k8s:8080/k8s/busybox:1.28
         volumeMounts:
         - name: init-share-html
           mountPath: "/share/html"
