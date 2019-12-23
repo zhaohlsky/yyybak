@@ -1,0 +1,44 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: batch-job-ag-status
+spec:
+  schedule: "*/2 * * * *"
+  startingDeadlineSeconds: 15
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: ag-status
+        spec:
+          restartPolicy: OnFailure
+          initContainers:
+          - name: busybox
+            image: nfs.k8s:8080/k8s/busybox:1.28
+            volumeMounts:
+            - name: init-code
+              mountPath: "/app"
+            - name: app-dir
+              mountPath: "/share/app"
+            command: ["/bin/sh","-c","cp /app/* /share/app;"]
+          containers:
+          - name: ag-status  
+            image: nfs.k8s:8080/k8s/python:app
+            imagePullPolicy: Always #IfNotPresent
+            volumeMounts:
+            - name: init-code
+              mountPath: "/share/app"
+            #command: [""]
+          volumes:
+          - name: init-code
+            nfs:
+              server: nfs.k8s
+              path: "/data/k8s/ag-status/app"
+          - name: app-dir
+            emptyDir: {}
+
+
+
+
+
