@@ -35,7 +35,7 @@ spec:
           mountPath: "/data/html"
         - name: defaultconf
           mountPath: "/data/conf"
-        command: ["/bin/sh","-c","cp /data/html/* /share/html;cp /data/conf/* /share/conf"]
+        command: ["/bin/sh","-c","cp -a /data/html/* /share/html;cp /data/conf/* /share/conf"]
       containers:
       - name: nginx-app
         image: nfs.k8s:8080/k8s/nginx:alpine
