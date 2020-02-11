@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: teleport-pvc
+  namespace: default
+  labels:
+    app: teleport
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 9990Mi

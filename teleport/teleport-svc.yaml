@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: teleport-svc
+  labels:
+    app: teleport
+spec:
+  selector:
+      app: teleport
+  ports:
+    - name: teleport-web
+      port: 7190
+      protocol: TCP
+      targetPort: 7190
+      nodePort: 30190
+  type: NodePort
+  selector:
+    app: teleport

@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: teleport-deployment
+  labels:
+    app: teleport
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: teleport
+  template:
+    metadata:
+      labels:
+        app: teleport
+    spec:
+      imagePullSecrets:
+      - name: harbor-secret
+      initContainers:
+      - name: busybox
+        image: nfs.k8s:8080/k8s/busybox:1.28
+        volumeMounts:
+        - name: init-code
+          mountPath: "/usr/local/teleport/app"
+      containers:
+      - name: teleport  
+        image: nfs.k8s:8080/k8s/python:3.7
+        imagePullPolicy: Always #IfNotPresent
+        volumeMounts:
+        - name: init-code
+          mountPath: "/usr/local/teleport/app"
+        - name: teleport-data
+          mountPath: "/usr/local/teleport"
+        command: ["/bin/sh","-c","/usr/local/teleport/app/setup.sh;while true;do echo running;sleep 10;done"]
+        ports:
+        - name: teleport-web
+          containerPort: 7190
+          protocol: TCP
+        - name: teleport-core
+          containerPort: 52080
+        - name: teleport-rdp
+          containerPort: 52089
+        - name: teleport-ssh
+          containerPort: 52189
+        - name: teleport-telnet
+          containerPort: 52389
+#        readinessProbe:
+#          httpGet:
+#            path: /
+#            port: teleport-web
+#          initialDelaySeconds: 5
+#        livenessProbe:
+#          httpGet:
+#            path: /
+#            port: teleport-web
+#          initialDelaySeconds: 5
+#          periodSeconds: 3
+#          timeoutSeconds: 3
+#          successThreshold: 1
+#          failureThreshold: 3
+      volumes:
+        - name: init-code
+          nfs:
+            server: nfs.k8s
+            path: "/data/k8s/teleport/app"
+        - name: teleport-data
+          persistentVolumeClaim:
+            claimName: teleport-pvc
