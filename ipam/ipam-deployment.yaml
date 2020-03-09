@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ipam
+  labels:
+    app: ipam
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ipam
+  template:
+    metadata:
+      labels:
+        app: ipam
+    spec:
+      containers:
+      - image: nfs.k8s:8080/k8s/phpipam:1.4
+        name: ipam
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: MYSQL_ENV_MYSQL_HOST
+          valueFrom:
+            secretKeyRef:
+              name: ipam-conf
+              key: MYSQL_ENV_MYSQL_HOST
+        - name: MYSQL_ENV_MYSQL_USER
+          valueFrom:
+            secretKeyRef:
+              name: ipam-conf
+              key: MYSQL_ENV_MYSQL_USER
+        - name: MYSQL_ENV_MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: ipam-conf
+              key: MYSQL_ENV_MYSQL_ROOT_PASSWORD
+        - name: MYSQL_ENV_MYSQL_DB
+          valueFrom:
+            secretKeyRef:
+              name: ipam-conf
+              key: MYSQL_ENV_MYSQL_DB
+#        - name: port
+#          valueFrom:
+#            secretKeyRef:
+#              name: ipam-conf
+#              key: port
+#      volumes:
+#      - name: ipam-config
+#        persistentVolumeClaim:
+#          claimName: mysql
+#      - name: mysql-config
+#        configMap:
+#          name: mysql-config
+#      - name: mysql-initdb
+#        emptyDir: {}
+
